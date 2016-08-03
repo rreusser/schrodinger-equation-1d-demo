@@ -23,6 +23,8 @@ This simulation uses [RK-4](https://github.com/scijs/ode-rk4) temporal integrati
 
 [View demo →](http://demos.rickyreusser.com/schrodinger-equation-1d/)
 
+In the demo, the blue and green lines are the real and imaginary components of the wavefunction, with the envelope displayed in black. The red represents the potential barrier with scale displayed on the right, and the gray represents the perfectly matched layer which suppresses reflections.
+
 ## To Do
 
 - Verify and tighten up the constant scale factors
