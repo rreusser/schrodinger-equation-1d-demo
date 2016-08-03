@@ -14,5 +14,6 @@ extend(window, {
   euler: require('ode-euler'),
   rk2: require('ode-midpoint'),
   rk4: require('ode-rk4'),
-  control: require('control-panel')
+  control: require('control-panel'),
+  qs: require('query-string')
 });
