@@ -1,0 +1,21 @@
+{
+  "title": "Schrodinger Equation 1D",
+  "appName": "schrodinger-equation-1d",
+  "camelizedAppName": "schrodingerEquation1D",
+  "description": "A Schrodinger equation in one dimension",
+  "ghOrgOrUser": "rreusser",
+  "metaTags": {
+    "site": "rickyreusser.com",
+    "title": "Schrodinger Equation 1D",
+    "description": "The Schrodinger Equation with a potential barrier in 1D",
+    "twitter:card": "summary_large_image",
+    "twitter:title": "Schrodinger Equation 1D",
+    "twitter:site": "@rickyreusser",
+    "twitter:description": "The Schrodinger Equation with a potential barrier in one dimension",
+    "twitter:image": "images/screenshot.png",
+    "og:image": "images/screenshot.png",
+    "og:site_name": "rickyreusser.com",
+    "og:title": "Schrodinger Equation 1D",
+    "og:description": "The Schrodinger Equation with a potential barrier in one dimension"
+  }
+}
