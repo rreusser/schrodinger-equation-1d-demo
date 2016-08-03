@@ -1,7 +1,32 @@
-// This is the default stylesheet used only if no other stylesheet
-// is found.
+/* This file's styles will get used by index.html */
 
 html, body {
   margin: 0;
   padding: 0;
+  height: 100%;
+  background-color: rgb(227,227,227);
+}
+
+#graph {
+  position: absolute;
+  left: 300px;
+  right: 0;
+  top: 0;
+  bottom: 0;
+}
+
+.control-panels-container {
+  width: 300px;
+  position: absolute;
+  top: 0;
+  width: 300px;
+  left: 0;
+  bottom: 0;
+  overflow-y: auto;
+}
+
+.control-panel > div:first-child {
+  text-align: left !important;
+  font-weight: 900 !important;
+  text-decoration: underline;
 }
