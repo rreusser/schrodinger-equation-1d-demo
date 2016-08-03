@@ -34,7 +34,7 @@
     "www:build:html": "node www/scripts/build.js --pattern=www/src/*.html --dest=www/dist/",
     "www:build:css": "cp www/src/*.css www/dist/",
     "www:build:fonts": "if [  -e www/src/fonts ]; then cp -r www/src/fonts www/dist/fonts; fi",
-    "www:build:images": "if [ -e www/src/images ]; then cp -r www/src/images www/dist/images; fi",
+    "www:build:images": "if [ -e www/src/images ]; then cp -r www/src/images/* www/dist/images/; fi",
     "www:build": "mkdir -p www/dist && npm run www:build:html && npm run www:build:js && npm run www:build:css && npm run www:build:fonts && npm run www:build:images",
     "www:build:nohtml": "mkdir -p www/dist && npm run www:build:js && npm run www:build:css && npm run www:build:fonts && npm run www:build:images",
     "www:deploy:gh": "npm run www:build && gh-pages -d www/dist",

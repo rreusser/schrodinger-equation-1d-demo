@@ -12,8 +12,8 @@
     "twitter:title": "Schrodinger Equation 1D",
     "twitter:site": "@rickyreusser",
     "twitter:description": "The Schrodinger Equation with a potential barrier in one dimension",
-    "twitter:image": "images/screenshot.png",
-    "og:image": "images/screenshot.png",
+    "twitter:image": "http://rickyreusser.com/schrodinger-equation-1d-demo/images/screenshot.png",
+    "og:image": "http://rickyreusser.com/schrodinger-equation-1d-demo/images/screenshot.png",
     "og:site_name": "rickyreusser.com",
     "og:title": "Schrodinger Equation 1D",
     "og:description": "The Schrodinger Equation with a potential barrier in one dimension"

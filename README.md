@@ -1,5 +1,7 @@
 # schrodinger-1d
 
+> [View demo →](http://demos.rickyreusser.com/schrodinger-equation-1d/)
+
 [![experimental][stability-experimental]][stability-url]
 <!--[![Build Status][travis-image]][travis-url]-->
 <!--[![npm version][npm-image]][npm-url]-->
@@ -12,6 +14,14 @@
 This demo solves [Schrödinger's Equation](https://en.wikipedia.org/wiki/Schr%C3%B6dinger_equation) in the presence of a potential. That is, <p align="center"><img alt="i&bsol;hbar &lcub;&bsol;frac &lcub;&bsol;partial &rcub;&lcub;&bsol;partial t&rcub;&rcub;&bsol;Psi &lpar;&bsol;mathbf &lcub;r&rcub; &comma;t&rpar;&equals;&bsol;left&lsqb;&lcub;&bsol;frac &lcub;-&bsol;hbar &Hat;&lcub;2&rcub;&rcub;&lcub;2&bsol;mu &rcub;&rcub;&bsol;nabla &Hat;&lcub;2&rcub;&plus;V&lpar;&bsol;mathbf &lcub;r&rcub; &comma;t&rpar;&bsol;right&rsqb;&bsol;Psi &lpar;&bsol;mathbf &lcub;r&rcub; &comma;t&rpar;" valign="middle" src="images/ihbar-frac-partial-partial-tpsi-mathbf-r-tlef-d4cf84b0b7.png" width="356.5" height="55"></p> with `hbar = 1` and `µ = 1`. (Actually, please don't rely on the scale factors! I haven't carefully verified them since they don't affect the behavior to within a constant multiple of the inputs.)
 
 This simulation uses [RK-4](https://github.com/scijs/ode-rk4) temporal integration and spectral differentiation (differentiation via the [FFT](https://github.com/scijs/ndarray-fft)) in space. Spectral derivatives resolve wavenumbers perfectly, as opposed to typical second order finite differences which tend to lead to heavy dispersion. The boundary conditions are implemented using the Perfectly Matched Layer (PML) of Berenger [1].
+
+<p align="center">
+  <a href="http://demos.rickyreusser.com/schrodinger-equation-1d/">
+    <img src="images/sample.gif" alt="Reflection and transmission from a potential barrier">
+  </a>
+</p>
+
+[View demo →](http://demos.rickyreusser.com/schrodinger-equation-1d/)
 
 ## To Do
 

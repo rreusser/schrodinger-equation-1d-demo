@@ -7,6 +7,7 @@ var lr = require('inject-lr-script-stream');
 var resolve = require('./util/content-resolver');
 var toStr = require('stream-to-string');
 var metaTagInjector = require('./util/meta-tag-injector');
+var codepenInjector = require('./util/codepen-injector');
 var metadata = require('../metadata');
 
 var app = budo('www/src/static.js', {
@@ -40,6 +41,7 @@ var app = budo('www/src/static.js', {
         })
           .pipe(lr())
           .pipe(metaTagInjector(metadata.metaTags))
+          .pipe(codepenInjector())
           .pipe(res);
       });
       } catch(e) {
