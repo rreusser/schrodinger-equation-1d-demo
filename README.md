@@ -17,7 +17,7 @@ This simulation uses [RK-4](https://github.com/scijs/ode-rk4) temporal integrati
 
 ## Examples
 
-(Need to copy the link since github mangles my quick and dirty JSON-in-the-url-hash strategy...)
+(Need to copy the link from the readme source since github mangles my quick and dirty JSON-in-the-url-hash strategy...)
 
 - [Reflection and transmission across a potential barrier](http://demos.rickyreusser.com/schrodinger-equation-1d/#{"pulse":{"center":0.5,"width":0.1,"magnitude":1,"wavenumber":200},"pulse2":{"center":1.5,"width":0.1,"magnitude":0,"wavenumber":-200},"pml":{"width":0.05,"exponent":1,"gamma":1.5707963267948966},"integration":{"dt":0.0000991,"stepsPerIter":5,"method":"rk4"},"potential":{"width":0.1,"magnitude":1000,"inverted":false,"center":1,"exponent":2}})
 - [Spreading of the wave packet](http://demos.rickyreusser.com/schrodinger-equation-1d/#{"pulse":{"center":0.5,"width":0.016,"magnitude":1,"wavenumber":400},"pulse2":{"center":1.5,"width":0.018,"magnitude":0,"wavenumber":400},"pml":{"width":0.05,"exponent":1,"gamma":1.5707963267948966},"integration":{"dt":0.0000991,"stepsPerIter":3,"method":"rk4"},"potential":{"width":0.1,"magnitude":0,"inverted":false,"center":1,"exponent":1.98}})
