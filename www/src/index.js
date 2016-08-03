@@ -28,7 +28,6 @@ var pulse2 = {
   wavenumber: -200.0
 };
 
-
 // Perfectly Matched Layer (PML):
 var pml = {
   width: 0.05,
@@ -51,6 +50,14 @@ var potential = {
   center: grid.xmin + (grid.xmax - grid.xmin) * 0.5,
   exponent: 2,
 };
+
+var simulationConfig = {
+  pulse: pulse,
+  pulse2: pulse2,
+  pml: pml,
+  integration: integration,
+  potential: potential
+}
 
 paramsFromHash();
 
@@ -507,33 +514,33 @@ window.addEventListener('resize', onResize);
 
 function paramsFromHash () {
   try {
-    var params = JSON.parse(window.location.hash.replace(/^#/,''));
-    if (params.pulse) {
-      extend(pulse, params.pulse);
+    var str = window.location.hash.replace(/^#/,'');
+    var parsed = qs.parse(str);
+    var fields = ['pulse', 'pulse2', 'pml', 'potential', 'integration'];
+    for (var i = 0; i < fields.length; i++) {
+      var field = fields[i];
+      var fieldData = parsed[field];
+      var fieldConfig = simulationConfig[field];
+      if (!fieldConfig) continue;
+      try {
+        var fieldValue = JSON.parse(fieldData);
+        extend(simulationConfig[field], fieldValue);
+      } catch (e) {
+        console.warn(e);
+      }
     }
-    if (params.pulse2) {
-      extend(pulse2, params.pulse2);
-    }
-    if (params.pml) {
-      extend(pml, params.pml);
-    }
-    if (params.potential) {
-      extend(potential, params.potential);
-    }
-    if (params.integration) {
-      extend(integration, params.integration);
-    }
-  } catch (e) {
+  } catch(e) {
+    console.warn(e);
   }
 }
 
 function paramsToHash () {
-  var params = JSON.stringify({
-    pulse: pulse,
-    pulse2: pulse2,
-    pml: pml,
-    integration: integration,
-    potential: potential,
+  var params = qs.stringify({
+    pulse: JSON.stringify(pulse),
+    pulse2: JSON.stringify(pulse2),
+    pml: JSON.stringify(pml),
+    integration: JSON.stringify(integration),
+    potential: JSON.stringify(potential),
   });
 
   window.location.hash = params;
