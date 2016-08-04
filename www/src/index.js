@@ -7,9 +7,11 @@ function zeros (n) {
 }
 
 // Grid definition:
+var pmlWidth = 0.1;
+
 var grid = {
-  xmin: 0,
-  xmax: 2,
+  xmin: 0 - pmlWidth,
+  xmax: 2 + pmlWidth,
   n: 512,
 };
 
@@ -30,7 +32,7 @@ var pulse2 = {
 
 // Perfectly Matched Layer (PML):
 var pml = {
-  width: 0.05,
+  width: pmlWidth,
   exponent: 1,
   gamma: Math.PI * 0.5
 };
@@ -38,7 +40,8 @@ var pml = {
 var integration = {
   dt: 1e-4,
   stepsPerIter: 5,
-  method: 'rk4'
+  method: 'rk4',
+  probability: true
 }
 
 // Potential barrier:
@@ -99,9 +102,15 @@ var PMLi = PML.pick(null, 1);
 var sigmaEval = zeros(grid.n);
 
 function sigma (x) {
-  var xnorm = (x - grid.xmin) / (grid.xmax - grid.xmin)
-  if (xnorm < pml.width || xnorm > 1 - pml.width) {
-    return Math.pow(Math.max(0, Math.min(1, (Math.abs(x / (grid.xmax - grid.xmin) - 0.5) * 2 - 1 + pml.width * 2) / (pml.width * 2))), pml.exponent);
+  var xnorm;
+  var pmlWidth = pml.width;
+  if (x - grid.xmin < pmlWidth || grid.xmax - x < pmlWidth) {
+    if (x - grid.xmin < pmlWidth) {
+      xnorm = (x - grid.xmin) / pmlWidth;
+    } else {
+      xnorm = (grid.xmax - x) / pmlWidth;
+    }
+    return Math.pow(1 - xnorm, pml.exponent);
   } else {
     return 0;
   }
@@ -153,16 +162,33 @@ function fftfreq (n, dx) {
   return f;
 }
 
-var computeComponents = cwise({
+var computeAmplitudeComponents = cwise({
   args: ['array', 'array', 'array', 'array', 'array', 'array'],
   body: function (reOut, imOut, pAbsOut, mAbsOut, reIn, imIn) {
     var abs = Math.sqrt(reIn * reIn + imIn * imIn);
-    reOut = reIn,
-    imOut = imIn,
+    reOut = reIn;
+    imOut = imIn;
     pAbsOut = abs;
     mAbsOut = -abs;
   }
 });
+
+var computeProbabilityComponents = cwise({
+  args: ['array', 'array', 'array', 'array'],
+  body: function (pAbsOut, mAbsOut, reIn, imIn) {
+    var abs2 = reIn * reIn + imIn * imIn;
+    pAbsOut = abs2;
+    mAbsOut = 0;
+  }
+});
+
+function computeComponents(reOut, imOut, pAbsOut, mAbsOut, reIn, imIn) {
+  if (integration.probability) {
+    computeProbabilityComponents(pAbsOut, mAbsOut, reIn, imIn);
+  } else {
+    computeAmplitudeComponents(reOut, imOut, pAbsOut, mAbsOut, reIn, imIn);
+  }
+}
 
 var initializeSolution = cwise({
   args: ['array', 'array', 'array', 'scalar', 'scalar', 'scalar'],
@@ -265,29 +291,64 @@ function reinitializeWithRestart () {
 }
 
 function redrawExtras () {
-  return Plotly.transition(gd, [{y: V.data}, {
-    y: sigmaEval.data,
-    fillopacity: Math.random()
-  }], null, [4, 5], {duration: 0});
+  return Plotly.transition(gd, [
+    {y: sigmaEval.data},
+    {y: V.data},
+  ], null, [0, 5], {duration: 0});
 }
 
 function redrawSolution () {
   // Copy the solution into plottable arrays:
   computeComponents(pl.yr, pl.yi, pl.ypabs, pl.ymabs, yr, yi);
 
-  return Plotly.transition(gd, [
-    {y: pl.yr.data},
-    {y: pl.yi.data},
-    {y: pl.ymabs.data},
-    {y: pl.ypabs.data},
-  ], null, [0, 1, 2, 3], {
-    duration: 0,
+  if (integration.probability) {
+    return Plotly.transition(gd, [
+      {y: pl.ymabs.data},
+      {y: pl.ypabs.data},
+    ], null, [3, 4], {
+      duration: 0,
+    });
+  } else {
+    return Plotly.transition(gd, [
+      {y: pl.yr.data},
+      {y: pl.yi.data},
+      {y: pl.ymabs.data},
+      {y: pl.ypabs.data},
+    ], null, [1, 2, 3, 4], {
+      duration: 0,
+    });
+  }
+}
+
+function rescalePotentialAxis () {
+  return Plotly.relayout(gd, {
+    'yaxis2.range': computePotentialAxisLimits()
   });
 }
 
-function rescaleY2 () {
+function hideShowPotential () {
+  if (potential.magnitude < 1e-4) {
+    return Plotly.restyle(gd, {visible: [false]}, [5]);
+  } else {
+    return Plotly.restyle(gd, {visible: [true]}, [5]);
+  }
+}
+
+function rescaleYAxis () {
   return Plotly.relayout(gd, {
-    'yaxis2.range': computePotentialAxisLimits()
+    'yaxis.range': computeYAxisLimits()
+  }).then(function () {
+    if (integration.probability) {
+      return Plotly.restyle(gd, {visible: [false, false]}, [1, 2]);
+    } else {
+      return Plotly.restyle(gd, {visible: [true, true]}, [1, 2]);
+    }
+  }).then(function () {
+    if (integration.probability) {
+      return Plotly.restyle(gd, {name: ['|𝜓|<sup>2</sup>']}, [4]);
+    } else {
+      return Plotly.restyle(gd, {name: ['|𝜓|']}, [4]);
+    }
   });
 }
 
@@ -343,23 +404,58 @@ start();
 
 function computePotentialAxisLimits () {
   var mag = Math.max(1000, Math.abs(potential.magnitude) * 1.5);
-  return [-mag, mag];
+  if (integration.probability) {
+    return [0, mag];
+  } else {
+    return [-mag, mag];
+  }
+}
+
+function computeYAxisLimits () {
+  if (integration.probability) {
+    return [0, 1.5];
+  } else {
+    return [-1.5, 1.5];
+  }
+}
+
+function computeXAxisLimits () {
+  return [grid.xmin + pml.width, grid.xmax - pml.width];
 }
 
 Plotly.plot(gd, [
     {
       x: x.data,
+      y: sigmaEval.data,
+      fill: 'tozeroy',
+      fillcolor: 'rgba(128, 128, 128, 0.2)',
+      line: {width: 2, color: '#ccc', simplify: false},
+      name: 'PML',
+      //showlegend: false,
+      hoverinfo: 'none',
+      uid: 'sigma',
+    },
+    {
+      x: x.data,
       y: pl.yr.data,
       line: {width: 1, color: 'blue', simplify: false},
-      showlegend: false,
+      opacity: 0.75,
+      name: 'Re(𝜓)',
+      //showlegend: false,
+      visible: !integration.probability,
       hoverinfo: 'none',
+      uid: 'realpart',
     },
     {
       x: x.data,
       y: pl.yi.data,
       line: {width: 1, color: 'green', simplify: false},
-      showlegend: false,
+      opacity: 0.75,
+      visible: !integration.probability,
+      name: 'Im(𝜓)',
+      //showlegend: false,
       hoverinfo: 'none',
+      uid: 'imagpart',
     },
     {
       x: x.data,
@@ -367,42 +463,39 @@ Plotly.plot(gd, [
       line: {width: 2, color: 'black', simplify: false},
       showlegend: false,
       hoverinfo: 'none',
+      uid: 'negabs',
     },
     {
       x: x.data,
       y: pl.ypabs.data,
       fill: 'tonexty',
-      fillcolor: 'rgba(100, 150, 200, 0.3)',
+      fillcolor: 'rgba(100, 150, 200, 0.4)',
       line: {width: 2, color: 'black', simplify: false},
-      showlegend: false,
+      name: '|𝜓|<sup>2</sup>',
+      //showlegend: false,
       hoverinfo: 'none',
+      uid: 'posabs',
     },
     {
       x: x.data,
       y: V.data,
       fill: 'tozeroy',
       fillcolor: 'rgba(200, 50, 50, 0.2)',
-      line: {width: 2, color: 'red', simplify: false},
-      showlegend: false,
+      line: {width: 2, color: 'rgba(255,0,0,0.7)', simplify: false},
+      //showlegend: false,
+      name: 'Potential',
+      visible: potential.magnitude > 1e-4,
       hoverinfo: 'none',
       yaxis: 'y2',
-    },
-    {
-      x: x.data,
-      y: sigmaEval.data,
-      fill: 'tozeroy',
-      fillcolor: 'rgba(128, 128, 128, 0.2)',
-      line: {width: 2, color: '#ccc', simplify: true},
-      showlegend: false,
-      hoverinfo: 'none',
+      uid: 'potential',
     },
   ],
   {
     xaxis: {
-      range: [grid.xmin, grid.xmax]
+      range: computeXAxisLimits(),
     },
     yaxis: {
-      range: [-1.5, 1.5],
+      range: computeYAxisLimits(),
     },
     yaxis2: {
       range: computePotentialAxisLimits(),
@@ -419,6 +512,7 @@ control([
   {type: 'select', label: 'method', options: ['euler', 'rk2', 'rk4'], initial: integration.method},
   {type: 'button', label: 'Reinitialize', action: reinitializeWithRestart},
   {type: 'button', label: 'Start/Stop', action: startStop},
+  {type: 'checkbox', label: 'probability', initial: integration.probability}
 ], {
   root: document.getElementById('simulation-control'),
   title: 'Simulation',
@@ -427,14 +521,15 @@ control([
   extend(integration, data);
   integrators[integration.method].dt = data.dt;
   paramsToHash();
+  rescaleYAxis().then(rescalePotentialAxis());
 });
 
 
 control([
-  {type: 'range', label: 'magnitude', min: 0, max: 1, initial: pulse.magnitude},
-  {type: 'range', label: 'width', min: 0, max: 0.2, initial: pulse.width},
-  {type: 'range', label: 'wavenumber', min: -400, max: 400, initial: pulse.wavenumber, step: 1},
   {type: 'range', label: 'center', min: grid.xmin, max: grid.xmax, initial: pulse.center, step: 0.01},
+  {type: 'range', label: 'width', min: 0, max: 0.2, initial: pulse.width},
+  {type: 'range', label: 'magnitude', min: 0, max: 1, initial: pulse.magnitude},
+  {type: 'range', label: 'wavenumber', min: -400, max: 400, initial: pulse.wavenumber, step: 1},
 ], {
   root: document.getElementById('pulse-1-control'),
   title: 'Pulse 1',
@@ -448,10 +543,10 @@ control([
 });
 
 control([
-  {type: 'range', label: 'magnitude', min: 0, max: 1, initial: pulse2.magnitude},
-  {type: 'range', label: 'width', min: 0, max: 0.2, initial: pulse2.width},
-  {type: 'range', label: 'wavenumber', min: -400, max: 400, initial: pulse2.wavenumber, step: 1},
   {type: 'range', label: 'center', min: grid.xmin, max: grid.xmax, initial: pulse2.center, step: 0.01},
+  {type: 'range', label: 'width', min: 0, max: 0.2, initial: pulse2.width},
+  {type: 'range', label: 'magnitude', min: 0, max: 1, initial: pulse2.magnitude},
+  {type: 'range', label: 'wavenumber', min: -400, max: 400, initial: pulse2.wavenumber, step: 1},
 ], {
   root: document.getElementById('pulse-2-control'),
   title: 'Pulse 2',
@@ -466,26 +561,27 @@ control([
 
 control([
   {type: 'range', label: 'exponent', min: 0, max: 5, initial: pml.exponent},
-  {type: 'range', label: 'width', min: 0, max: 0.5, initial: pml.width, step: 0.01},
+  {type: 'range', label: 'width', min: 0, max: 1.1, initial: pml.width, step: 0.01},
   {type: 'range', label: 'gamma', min: 0, max: Math.PI * 0.5, initial: pml.gamma, steps: 101},
 ], {
   root: document.getElementById('pml-control'),
   title: 'Perfectly Matched Layer',
   theme: 'light',
 }).on('input', function (data) {
-  execute(function () {
+  //execute(function () {
     extend(pml, data);
     computePML();
     paramsToHash();
-    return Plotly.redraw(gd);
-  });
+    return redrawExtras();
+    //return Plotly.redraw(gd);
+  //});
 });
 
 control([
-  {type: 'range', label: 'magnitude', min: 0, max: 1e4, initial: potential.magnitude, steps: 100},
-  {type: 'range', label: 'width', min: 0, max: 1, initial: potential.width},
-  //{type: 'range', label: 'offset', min: 1, max: 1e4, initial: potential.offset, scale: 'log'},
   {type: 'range', label: 'center', min: grid.xmin, max: grid.xmax, initial: potential.center, step: 0.01},
+  {type: 'range', label: 'width', min: 0, max: 1, initial: potential.width},
+  {type: 'range', label: 'magnitude', min: 0, max: 1e4, initial: potential.magnitude, steps: 100},
+  //{type: 'range', label: 'offset', min: 1, max: 1e4, initial: potential.offset, scale: 'log'},
   {type: 'range', label: 'exponent', min: 1, max: 50, initial: potential.exponent},
   {type: 'checkbox', label: 'inverted', initial: potential.inverted},
 ], {
@@ -493,14 +589,15 @@ control([
   title: 'Potential Barrier',
   theme: 'light',
 }).on('input', function (data) {
-  execute(function () {
+  //execute(function () {
     extend(potential, data);
     computePotential();
     paramsToHash();
-    rescaleY2().then(function () {
-      return Plotly.redraw(gd);
+    hideShowPotential().then(rescalePotentialAxis()).then(function () {
+      return redrawExtras();
+      //return Plotly.redraw(gd);
     });
-  });
+  //});
 });
 
 function onResize () {
@@ -515,6 +612,7 @@ window.addEventListener('resize', onResize);
 function paramsFromHash () {
   try {
     var str = window.location.hash.replace(/^#/,'');
+    if (str.length === 0) return;
     var parsed = qs.parse(str);
     var fields = ['pulse', 'pulse2', 'pml', 'potential', 'integration'];
     for (var i = 0; i < fields.length; i++) {
