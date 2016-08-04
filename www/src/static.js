@@ -15,5 +15,7 @@ extend(window, {
   rk2: require('ode-midpoint'),
   rk4: require('ode-rk4'),
   control: require('control-panel'),
-  qs: require('query-string')
+  qs: require('query-string'),
+  concatRows: require('ndarray-concat-rows'),
+  concatCols: require('ndarray-concat-cols'),
 });
