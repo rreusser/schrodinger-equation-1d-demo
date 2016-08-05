@@ -1,6 +1,6 @@
 'use strict';
 
-var gd = document.getElementById('graph');
+var gd = window.gd = document.getElementById('graph');
 
 function zeros (n) {
   return ndarray(new Array(n));
@@ -179,14 +179,20 @@ var computeProbabilityComponents = cwise({
 function computeComponents(reOut, imOut, pAbsOut, reIn, imIn) {
   if (integration.probability) {
     computeProbabilityComponents(pAbsOut, reIn, imIn);
+
+    // Lower bound on the fill is zero for probability:
+    for (var i = grid.n - 1; i >= 0; i--) {
+      pAbsOut.data[2 * grid.n - 1 - i] = 0;
+    }
   } else {
     computeAmplitudeComponents(reOut, imOut, pAbsOut, reIn, imIn);
+
+    // Copy and reflect the absolute value to create the closed fill:
+    for (var i = grid.n - 1; i >= 0; i--) {
+      pAbsOut.data[2 * grid.n - 1 - i] = -pAbsOut.data[i];
+    }
   }
 
-  // Copy and reflect the absolute value to create the closed fill:
-  for (var i = grid.n - 1; i >= 0; i--) {
-    pAbsOut.data[2 * grid.n - 1 - i] = -pAbsOut.data[i];
-  }
 }
 
 var initializeSolution = cwise({
@@ -311,11 +317,12 @@ function redrawSolution () {
 initialize();
 start();
 
+// For debugging:
+// setTimeout(stop, 100);
+
 var raf;
 function iterate () {
-  // Take a number of steps of the integrator:
   integrators[integration.method].steps(integration.stepsPerIter);
-
   redrawSolution();
 
   raf = requestAnimationFrame(iterate);
@@ -453,8 +460,11 @@ Plotly.plot(gd, [
       x: 0.98,
       y: 0.98,
     },
-    margin: {t: 30, r: 40, b: 40, l: 40}
-  }, {scrollZoom: true}
+    margin: {t: 30, r: 40, b: 40, l: 40},
+    dragmode: 'pan',
+  }, {
+    scrollZoom: true,
+  }
 ).then(onResize);
 
 function onResize () {
