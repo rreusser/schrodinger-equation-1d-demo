@@ -1,4 +1,4 @@
-# schrodinger-1d
+# schrodinger-equation-1d-demo
 
 > [The Schrödinger Equation with a potential barrier in 1D](http://demos.rickyreusser.com/schrodinger-equation-1d/)
 
@@ -48,14 +48,14 @@ In the demo, the blue and green lines are the real and imaginary components of t
 
 <!-- BADGES -->
 
-[travis-image]: https://travis-ci.org/rreusser/schrodinger-1d.svg?branch=master
-[travis-url]: https://travis-ci.org//schrodinger-1d
+[travis-image]: https://travis-ci.org/rreusser/schrodinger-equation-1d-demo.svg?branch=master
+[travis-url]: https://travis-ci.org//schrodinger-equation-1d-demo
 
-[npm-image]: https://badge.fury.io/js/schrodinger-1d.svg
-[npm-url]: https://npmjs.org/package/schrodinger-1d
+[npm-image]: https://badge.fury.io/js/schrodinger-equation-1d-demo.svg
+[npm-url]: https://npmjs.org/package/schrodinger-equation-1d-demo
 
-[david-dm-image]: https://david-dm.org/rreusser/schrodinger-1d.svg?theme=shields.io
-[david-dm-url]: https://david-dm.org/rreusser/schrodinger-1d
+[david-dm-image]: https://david-dm.org/rreusser/schrodinger-equation-1d-demo.svg?theme=shields.io
+[david-dm-url]: https://david-dm.org/rreusser/schrodinger-equation-1d-demo
 
 [semistandard-image]: https://img.shields.io/badge/code%20style-semistandard-brightgreen.svg?style=flat-square
 [semistandard-url]: https://github.com/Flet/semistandard
