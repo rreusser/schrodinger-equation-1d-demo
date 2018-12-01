@@ -1,6 +1,6 @@
 # schrodinger-equation-1d-demo
 
-> [The Schrödinger Equation with a potential barrier in 1D](http://demos.rickyreusser.com/schrodinger-equation-1d/)
+> [The Schrödinger Equation with a potential barrier in 1D](https://rreusser.github.io/schrodinger-equation-1d-demo/)
 
 [![experimental][stability-experimental]][stability-url]
 <!--[![Build Status][travis-image]][travis-url]-->
