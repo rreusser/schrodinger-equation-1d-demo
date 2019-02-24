@@ -5,16 +5,16 @@
   "description": "A Schrodinger equation in one dimension",
   "ghOrgOrUser": "rreusser",
   "metaTags": {
-    "site": "rickyreusser.com",
+    "site": "rreusser.github.io",
     "title": "Schrodinger Equation 1D",
     "description": "The Schrodinger Equation with a potential barrier in 1D",
     "twitter:card": "summary_large_image",
     "twitter:title": "Schrodinger Equation 1D",
     "twitter:site": "@rickyreusser",
     "twitter:description": "The Schrodinger Equation with a potential barrier in one dimension",
-    "twitter:image": "http://rickyreusser.com/schrodinger-equation-1d-demo/images/screenshot.png",
-    "og:image": "http://rickyreusser.com/schrodinger-equation-1d-demo/images/screenshot.png",
-    "og:site_name": "rickyreusser.com",
+    "twitter:image": "https://rreusser.github.io/schrodinger-equation-1d-demo/images/screenshot.png",
+    "og:image": "https://rreusser.github.io/schrodinger-equation-1d-demo/images/screenshot.png",
+    "og:site_name": "rreusser.github.io",
     "og:title": "Schrodinger Equation 1D",
     "og:description": "The Schrodinger Equation with a potential barrier in one dimension"
   }
