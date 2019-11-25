@@ -10,7 +10,6 @@
   "contributors": [
     {
       "name": "Ricky Reusser",
-      "email": "rsreusser@gmail.com"
     }
   ],
   "license": "MIT",
@@ -20,7 +19,6 @@
   },
   "bugs": {
     "url": "https://github.com/rreusser/schrodinger-equation-1d/issues",
-    "email": "rsreusser@gmail.com"
   },
   "scripts": {
     "lint": "npm run semistandard",
